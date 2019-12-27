@@ -1,0 +1,10 @@
+FROM python:3.8
+
+RUN pip install Flask requests
+
+COPY app.py /app.py
+
+ENV FLASK_APP=app
+
+CMD flask run --no-reload --host 0.0.0.0 --port $PORT_APP --with-threads
+
