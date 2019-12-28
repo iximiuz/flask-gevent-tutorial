@@ -4,7 +4,7 @@ import asyncio
 from aiohttp import web
 
 async def handle(request):
-    delay = int(request.query.get('delay') or 1)
+    delay = float(request.query.get('delay') or 1)
     await asyncio.sleep(delay)
     return web.Response(text='slow api response')
 

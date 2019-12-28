@@ -4,5 +4,8 @@ RUN pip install Flask requests gunicorn
 
 COPY app.py /app.py
 
-CMD gunicorn --workers 4 --threads 100 --bind 0.0.0.0:$PORT_APP app:app
+CMD gunicorn --workers $WORKERS \
+  --threads $THREADS \
+  --bind 0.0.0.0:$PORT_APP \ 
+  app:app
 

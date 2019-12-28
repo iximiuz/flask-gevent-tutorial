@@ -1,41 +1,30 @@
 version: "3.7"
 services:
-  flask_app_dev:
+  flask_app:
     init: true
     build: 
       context: ./flask_app
-      dockerfile: Dockerfile-dev
+      dockerfile: Dockerfile-devserver
     environment: 
       - PORT_APP=3000
       - PORT_API=4000
+      - THREADS=without
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
       - slow_api
 
-  flask_app_uwsgi:
+  flask_app_threaded: # extends: flask_app
     init: true
     build: 
       context: ./flask_app
-      dockerfile: Dockerfile-uwsgi
+      dockerfile: Dockerfile-devserver
     environment: 
       - PORT_APP=3001
       - PORT_API=4000
+      - THREADS=with
     ports:
       - "127.0.0.1:3001:3001"
-    depends_on:
-      - slow_api
-
-  flask_app_gunicorn:
-    init: true
-    build: 
-      context: ./flask_app
-      dockerfile: Dockerfile-gunicorn
-    environment: 
-      - PORT_APP=3002
-      - PORT_API=4000
-    ports:
-      - "127.0.0.1:3002:3002"
     depends_on:
       - slow_api
 

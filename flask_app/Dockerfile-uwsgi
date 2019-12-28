@@ -4,5 +4,10 @@ RUN pip install Flask requests uwsgi
 
 COPY app.py /app.py
 
-CMD uwsgi --master --workers 4 --threads 100 --socket 0.0.0.0:$PORT_APP --protocol http --module app:app
+CMD uwsgi --master \
+  --workers $WORKERS \
+  --threads $THREADS \
+  --protocol http \
+  --socket 0.0.0.0:$PORT_APP \
+  --module app:app
 

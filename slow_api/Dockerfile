@@ -2,7 +2,7 @@ FROM python:3.8
 
 RUN pip install aiohttp
 
-COPY app.py /app.py
+COPY api.py /api.py
 
-CMD ["python", "/app.py"]
+CMD ["python", "/api.py"]
 

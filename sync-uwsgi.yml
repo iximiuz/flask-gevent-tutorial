@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  flask_app_uwsgi:
+    init: true
+    build: 
+      context: ./flask_app
+      dockerfile: Dockerfile-uwsgi
+    environment: 
+      - PORT_APP=3000
+      - PORT_API=4000
+      - WORKERS=4
+      - THREADS=50
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - slow_api
+
+  slow_api:
+    init: true
+    build: ./slow_api
+    environment: 
+      - PORT=4000
+    expose:
+      - "4000"
+

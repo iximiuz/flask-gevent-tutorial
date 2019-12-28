@@ -1,0 +1,9 @@
+FROM python:3.8
+
+RUN pip install Flask requests gevent
+
+COPY app.py /app.py
+COPY pywsgi.py /pywsgi.py
+
+CMD python /pywsgi.py
+

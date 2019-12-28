@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  flask_app:
+    init: true
+    build: 
+      context: ./flask_app
+      dockerfile: Dockerfile-psycopg2
+    environment: 
+      - PORT_APP=3000
+      - PORT_API=4000
+      - WORKERS=1
+      - ASYNC_CORES=2000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - slow_api
+      - postgres
+
+  slow_api:
+    init: true
+    build: ./slow_api
+    environment: 
+      - PORT=4000
+    expose:
+      - "4000"
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+    expose:
+      - "5432"
+
