@@ -10,6 +10,7 @@ services:
       - PORT_API=4000
       - WORKERS=1
       - ASYNC_CORES=2000
+      - PROTOCOL=http
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

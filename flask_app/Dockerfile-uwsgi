@@ -7,7 +7,7 @@ COPY app.py /app.py
 CMD uwsgi --master \
   --workers $WORKERS \
   --threads $THREADS \
-  --protocol http \
+  --protocol $PROTOCOL \
   --socket 0.0.0.0:$PORT_APP \
   --module app:app
 

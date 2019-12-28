@@ -2,7 +2,8 @@ FROM python:3.8
 
 RUN pip install Flask requests psycopg2 psycogreen uwsgi gevent
 
-COPY db.py /db.py
+COPY app.py /app.py
+COPY patched.py /patched.py
 
 CMD uwsgi --master \
   --single-interpreter \
@@ -10,5 +11,5 @@ CMD uwsgi --master \
   --gevent $ASYNC_CORES \
   --protocol http \
   --socket 0.0.0.0:$PORT_APP \
-  --module db:app
+  --module $MODULE:app
 

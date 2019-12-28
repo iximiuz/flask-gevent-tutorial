@@ -10,6 +10,7 @@ services:
       - PORT_API=4000
       - WORKERS=4
       - THREADS=50
+      - PROTOCOL=http
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

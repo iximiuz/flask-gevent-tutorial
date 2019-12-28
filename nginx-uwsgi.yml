@@ -1,0 +1,35 @@
+version: "3.7"
+services:
+  ingress:
+    image: nginx:1.17.6
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./flask_app/nginx-uwsgi.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - flask_app
+
+  flask_app:
+    init: true
+    build: 
+      context: ./flask_app
+      dockerfile: Dockerfile-gevent-uwsgi
+    environment: 
+      - PORT_APP=3000
+      - PORT_API=4000
+      - WORKERS=1
+      - ASYNC_CORES=2000
+      - PROTOCOL=uwsgi
+    expose:
+      - "3000"
+    depends_on:
+      - slow_api
+
+  slow_api:
+    init: true
+    build: ./slow_api
+    environment: 
+      - PORT=4000
+    expose:
+      - "4000"
+

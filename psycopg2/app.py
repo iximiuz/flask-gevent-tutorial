@@ -19,7 +19,7 @@ def index():
     resp = requests.get(f'{api_url}?delay={delay/2}')
 
     cur = conn.cursor()
-    cur.execute("SELECT pg_sleep(%s), NOW()", (delay/2,))
+    cur.execute("SELECT NOW(), pg_sleep(%s)", (delay/2,))
     
-    return 'Hi there! {} {}'.format(resp.text, cur.fetchall())
+    return 'Hi there! {} {}'.format(resp.text, cur.fetchall()[0])
 

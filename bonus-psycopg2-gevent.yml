@@ -3,15 +3,33 @@ services:
   flask_app:
     init: true
     build: 
-      context: ./flask_app
-      dockerfile: Dockerfile-psycopg2
+      context: ./psycopg2
+      dockerfile: Dockerfile
     environment: 
       - PORT_APP=3000
       - PORT_API=4000
       - WORKERS=1
       - ASYNC_CORES=2000
+      - MODULE=app
     ports:
       - "127.0.0.1:3000:3000"
+    depends_on:
+      - slow_api
+      - postgres
+
+  flask_app_2:
+    init: true
+    build: 
+      context: ./psycopg2
+      dockerfile: Dockerfile
+    environment: 
+      - PORT_APP=3001
+      - PORT_API=4000
+      - WORKERS=1
+      - ASYNC_CORES=2000
+      - MODULE=patched
+    ports:
+      - "127.0.0.1:3001:3001"
     depends_on:
       - slow_api
       - postgres

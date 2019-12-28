@@ -12,7 +12,7 @@ import asyncio
 from aiohttp import web
 
 async def handle(request):
-    delay = int(request.query.get('delay') or 1)
+    delay = float(request.query.get('delay') or 1)
     await asyncio.sleep(delay)
     return web.Response(text='slow api response')
 
@@ -39,7 +39,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    delay = int(request.args.get('delay') or 1)
+    delay = float(request.args.get('delay') or 1)
     resp = requests.get(f'{api_url}?delay={delay}')
     return 'Hi there! ' + resp.text
 ```
@@ -172,3 +172,96 @@ $ ab -r -n 2000 -c 200 http://127.0.0.1:3000/?delay=1
 > Failed requests:        0
 > Requests per second:    112.11 [#/sec] (mean)
 ```
+
+## Add Nginx reverse proxy
+
+See `nginx-gunicorn.yml` and `nginx-uwsgi.yml`:
+
+```bash
+$ docker-compose -f nginx-gunicorn.yml build
+$ docker-compose -f nginx-gunicorn.yml up
+
+# or
+
+$ docker-compose -f nginx-uwsgi.yml build
+$ docker-compose -f nginx-uwsgi.yml up
+
+# and then:
+
+$ ab -r -n 2000 -c 200 http://127.0.0.1:8080/?delay=1
+> ...
+```
+
+## Bonus: make psycopg2 gevent-friendly with psycogreen
+
+gevent patches only modules from the Python standard library. If we use
+3rd party modules, like psycopg2, corresponding IO will still be blocking:
+
+```python
+# psycopg2/app.py
+
+from gevent import monkey
+monkey.patch_all()
+
+import os
+
+import psycopg2
+import requests
+from flask import Flask, request
+
+api_port = os.environ['PORT_API']
+api_url = f'http://slow_api:{api_port}/'
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    conn = psycopg2.connect(user="example", password="example", host="postgres")
+    delay = float(request.args.get('delay') or 1)
+    resp = requests.get(f'{api_url}?delay={delay/2}')
+
+    cur = conn.cursor()
+    cur.execute("SELECT NOW(), pg_sleep(%s)", (delay/2,))
+    
+    return 'Hi there! {} {}'.format(resp.text, cur.fetchall()[0])
+```
+
+We expect ~2 seconds to perform 10 one-second-long HTTP requests with concurrency 5,
+but the test shows >5 seconds due to the blocking behavior of psycopg2 calls:
+
+```bash
+$ docker-compose -f bonus-psycopg2-gevent.yml build
+$ docker-compose -f bonus-psycopg2-gevent.yml up
+
+$ ab -r -n 10 -c 5 http://127.0.0.1:3000/?delay=1
+> Concurrency Level:      5
+> Time taken for tests:   6.670 seconds
+> Complete requests:      10
+> Failed requests:        0
+> Requests per second:    1.50 [#/sec] (mean)
+```
+
+To bypass this limitation, we need to use psycogreen module to patch psycopg2:
+
+
+```python
+# psycopg2/patched.py
+
+from psycogreen.gevent import patch_psycopg
+patch_psycopg()
+
+from app import app
+```
+
+```bash
+$ docker-compose -f bonus-psycopg2-gevent.yml build
+$ docker-compose -f bonus-psycopg2-gevent.yml up
+
+$ ab -r -n 10 -c 5 http://127.0.0.1:3001/?delay=1
+> Concurrency Level:      5
+> Time taken for tests:   3.148 seconds
+> Complete requests:      10
+> Failed requests:        0
+> Requests per second:    3.18 [#/sec] (mean)
+```
+
