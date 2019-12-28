@@ -2,7 +2,7 @@
 
 ## Create a simple Flask application
 
-First, we need to emulate a slow 3rd parth API:
+First, we need to emulate a slow 3rd party API:
 
 ```python
 # slow_api/api.py
