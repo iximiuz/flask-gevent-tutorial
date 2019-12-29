@@ -1,6 +1,6 @@
 # How to use Flask with gevent (uWSGI and Gunicorn editions)
 
-## Create a simple Flask application
+## Create simple Flask application
 
 First, we need to emulate a slow 3rd party API:
 
@@ -173,7 +173,7 @@ $ ab -r -n 2000 -c 200 http://127.0.0.1:3000/?delay=1
 > Requests per second:    112.11 [#/sec] (mean)
 ```
 
-## Add Nginx reverse proxy
+## Use Nginx reverse proxy in front of application server
 
 See `nginx-gunicorn.yml` and `nginx-uwsgi.yml`:
 
