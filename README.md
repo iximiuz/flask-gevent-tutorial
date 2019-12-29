@@ -86,7 +86,7 @@ $ ab -r -n 2000 -c 200 http://127.0.0.1:3000/?delay=1
 ## Deploy Flask application using Gunicorn (4 worker processes x 50 threads each)
 
 ```bash
-# Build and start app served by uWSGI
+# Build and start app served by Gunicorn
 $ docker-compose -f sync-gunicorn.yml build
 $ docker-compose -f sync-gunicorn.yml up
 
